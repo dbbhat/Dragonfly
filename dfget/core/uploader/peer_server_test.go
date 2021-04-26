@@ -305,7 +305,8 @@ func (s *PeerServerTestSuite) TestShutdown(c *check.C) {
 	tmpFile := helper.GetServiceFile(taskName, cfg.RV.SystemDataDir)
 	ioutil.WriteFile(tmpFile, []byte("hello"), os.ModePerm)
 
-	ps := newPeerServer(cfg, 0)
+	ps, err := newPeerServer(cfg, 0)
+	c.Assert(err, check.IsNil)
 	ps.syncTaskMap.Store(taskName, &taskConfig{
 		cid:       "x",
 		superNode: "localhost",
@@ -362,7 +363,8 @@ func (s *PeerServerTestSuite) TestDeleteExpiredFile(c *check.C) {
 		{name: f(), task: nil, expire: time.Minute, deleted: true},
 	}
 
-	ps := newPeerServer(cfg, 0)
+	ps, err := newPeerServer(cfg, 0)
+	c.Assert(err, check.IsNil)
 	ps.api = &helper.MockSupernodeAPI{
 		ServiceDownFunc: func(ip string, taskID string, cid string) (*types.BaseResponse, error) {
 			mark[taskID] = true

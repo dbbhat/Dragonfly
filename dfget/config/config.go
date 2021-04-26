@@ -229,6 +229,10 @@ type Config struct {
 	// and the `/etc/dragonfly.conf` is just to ensure compatibility with previous versions.
 	ConfigFiles []string `json:"-"`
 
+	// https options
+	CertPem string `json:"certPem"`
+	KeyPem  string `json:"keyPem"`
+
 	// RV stores the variables that are initialized and used at downloading task executing.
 	RV RuntimeVariable `json:"-"`
 

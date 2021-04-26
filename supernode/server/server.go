@@ -150,5 +150,6 @@ func (s *Server) Start() error {
 		ReadHeaderTimeout: time.Minute * 10,
 		IdleTimeout:       time.Minute * 10,
 	}
-	return server.Serve(l)
+	// return server.Serve(l)
+	return server.ServeTLS(l, s.Config.CertPem, s.Config.KeyPem)
 }

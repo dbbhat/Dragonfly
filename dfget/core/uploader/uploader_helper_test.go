@@ -55,7 +55,8 @@ func pieceContent(pieceSize int64, origin string) string {
 // newTestPeerServer inits the peer server for testing.
 func newTestPeerServer(workHome string) (srv *peerServer) {
 	cfg := helper.CreateConfig(nil, workHome)
-	srv = newPeerServer(cfg, 0)
+	srv, err := newPeerServer(cfg, 0)
+	_ = err
 	srv.totalLimitRate = 1000
 	srv.rateLimiter = ratelimiter.NewRateLimiter(int64(defaultRateLimit), 2)
 	return srv

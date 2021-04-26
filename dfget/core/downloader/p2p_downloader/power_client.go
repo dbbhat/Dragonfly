@@ -123,7 +123,8 @@ func (pc *PowerClient) downloadPiece() (content *bytes.Buffer, e error) {
 	// send download request
 	startTime := time.Now()
 	timeout := netutils.CalculateTimeout(int64(pc.pieceTask.PieceSize), pc.cfg.MinRate, config.DefaultMinRate, 10*time.Second)
-	resp, err := pc.downloadAPI.Download(dstIP, peerPort, pc.createDownloadRequest(), timeout)
+	// resp, err := pc.downloadAPI.Download(dstIP, peerPort, pc.createDownloadRequest(), timeout)
+	resp, err := pc.downloadAPI.Download(dstIP, peerPort, pc.createDownloadRequest(), timeout, pc.cfg.Cacerts, pc.cfg.Insecure)
 	if err != nil {
 		return nil, err
 	}

@@ -39,7 +39,7 @@ type DownloadRequest struct {
 // DownloadAPI defines the download method between dfget and peer server.
 type DownloadAPI interface {
 	// Download downloads a piece and returns an HTTP response.
-	Download(ip string, port int, req *DownloadRequest, timeout time.Duration) (*http.Response, error)
+	Download(ip string, port int, req *DownloadRequest, timeout time.Duration, caCerts []string, insecure bool) (*http.Response, error)
 }
 
 // downloadAPI is an implementation of interface DownloadAPI.
@@ -53,13 +53,15 @@ func NewDownloadAPI() DownloadAPI {
 	return &downloadAPI{}
 }
 
-func (d *downloadAPI) Download(ip string, port int, req *DownloadRequest, timeout time.Duration) (*http.Response, error) {
+func (d *downloadAPI) Download(ip string, port int, req *DownloadRequest, timeout time.Duration, caCerts []string, insecure bool) (*http.Response, error) {
 	headers := make(map[string]string)
 	headers[config.StrRange] = config.StrBytes + "=" + req.PieceRange
 	headers[config.StrPieceNum] = strconv.Itoa(req.PieceNum)
 	headers[config.StrPieceSize] = fmt.Sprint(req.PieceSize)
 	headers[config.StrUserAgent] = "dfget/" + version.DFGetVersion
 
-	url := fmt.Sprintf("http://%s:%d%s", ip, port, req.Path)
-	return httputils.HTTPGetTimeout(url, headers, timeout)
+	// url := fmt.Sprintf("http://%s:%d%s", ip, port, req.Path)
+	url := fmt.Sprintf("https://%s:%d%s", ip, port, req.Path)
+	// return httputils.HTTPGetTimeout(url, headers, timeout)
+	return httputils.HTTPGetWithTLS(url, headers, timeout, caCerts, insecure)
 }

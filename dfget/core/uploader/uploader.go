@@ -103,9 +103,21 @@ func launch(cfg *config.Config, p2pPtr *unsafe.Pointer) error {
 		if shouldGeneratePort {
 			port = generatePort(i)
 		}
-		tmp := newPeerServer(cfg, port)
+		tmp, err := newPeerServer(cfg, port)
+		if err != nil {
+			return fmt.Errorf("start peer server error and retried at most %d times", retryCount)
+		}
 		storeSrvPtr(p2pPtr, tmp)
-		if err := tmp.ListenAndServe(); err != nil {
+
+		//changes here
+		if tmp.TLSConfig != nil {
+			logrus.Infof("start peer https server on %s", tmp.Addr)
+			err = tmp.ListenAndServeTLS("", "")
+		} else {
+			logrus.Infof("start peer http server on %s", tmp.Addr)
+			err = tmp.ListenAndServe()
+		}
+		if err != nil {
 			if !strings.Contains(err.Error(), "address already in use") {
 				// start failed or shutdown
 				return err
@@ -116,6 +128,19 @@ func launch(cfg *config.Config, p2pPtr *unsafe.Pointer) error {
 			logrus.Warnf("start error:%v, remain retry times:%d",
 				err, retryCount-i)
 		}
+		//changes upto here 
+
+		// if err := tmp.ListenAndServe(); err != nil {
+		// 	if !strings.Contains(err.Error(), "address already in use") {
+		// 		// start failed or shutdown
+		// 		return err
+		// 	} else if uploaderAPI.PingServer(tmp.host, tmp.port) {
+		// 		// a peer server is already existing
+		// 		return nil
+		// 	}
+		// 	logrus.Warnf("start error:%v, remain retry times:%d",
+		// 		err, retryCount-i)
+		// }
 	}
 	return fmt.Errorf("start peer server error and retried at most %d times", retryCount)
 }

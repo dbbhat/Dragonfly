@@ -41,8 +41,13 @@ const (
 
 // NewSupernodeAPI creates a new instance of SupernodeAPI with default value.
 func NewSupernodeAPI() SupernodeAPI {
+	// return &supernodeAPI{
+	// 	Scheme:     "http",
+	// 	Timeout:    5 * time.Second,
+	// 	HTTPClient: httputils.DefaultHTTPClient,
+	// }
 	return &supernodeAPI{
-		Scheme:     "http",
+		Scheme:     "https",
 		Timeout:    5 * time.Second,
 		HTTPClient: httputils.DefaultHTTPClient,
 	}

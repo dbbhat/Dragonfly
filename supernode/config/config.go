@@ -249,4 +249,8 @@ type BaseProperties struct {
 	CleanRatio int
 
 	LogConfig dflog.LogConfig `yaml:"logConfig" json:"logConfig"`
+
+	//https options
+	CertPem string `yaml:"certPem"`
+	KeyPem  string `yaml:"keyPem"`
 }

@@ -18,6 +18,7 @@ package uploader
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -38,12 +39,13 @@ import (
 	"github.com/dragonflyoss/Dragonfly/pkg/ratelimiter"
 	"github.com/dragonflyoss/Dragonfly/version"
 
+	"github.com/pkg/errors"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
 // newPeerServer returns a new P2PServer.
-func newPeerServer(cfg *config.Config, port int) *peerServer {
+func newPeerServer(cfg *config.Config, port int) (*peerServer, error){
 	s := &peerServer{
 		cfg:      cfg,
 		finished: make(chan struct{}),
@@ -52,13 +54,24 @@ func newPeerServer(cfg *config.Config, port int) *peerServer {
 		api:      api.NewSupernodeAPI(),
 	}
 
+	if cfg.CertPem != "" && cfg.KeyPem != "" {
+		if s.TLSConfig == nil {
+			s.TLSConfig = &tls.Config{}
+		}
+		cert, err := tls.LoadX509KeyPair(cfg.CertPem, cfg.KeyPem)
+		if err != nil {
+			return nil, errors.Wrap(err, "load key pair")
+		}
+		s.TLSConfig.Certificates = []tls.Certificate{cert}
+	}
+
 	r := s.initRouter()
 	s.Server = &http.Server{
 		Addr:    net.JoinHostPort(s.host, strconv.Itoa(port)),
 		Handler: r,
 	}
 
-	return s
+	return s, nil
 }
 
 // ----------------------------------------------------------------------------
